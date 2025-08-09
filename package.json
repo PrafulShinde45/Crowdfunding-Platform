@@ -1,16 +1,21 @@
 {
-  "name": "get-me-a-chai",
+  "name": "fundforge",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "ANALYZE=true npm run build",
+    "analyze:server": "BUNDLE_ANALYZE=server npm run build",
+    "analyze:browser": "BUNDLE_ANALYZE=browser npm run build"
   },
   "dependencies": {
+    "auth": "^1.2.3",
+    "dotenv": "^17.2.1",
     "mongoose": "^8.2.2",
-    "next": "^14.1.3",
+    "next": "^14.2.31",
     "next-auth": "^4.24.7",
     "razorpay": "^2.9.2",
     "react": "^18",
@@ -18,6 +23,7 @@
     "react-toastify": "^9.1.3"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.4.6",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.3",

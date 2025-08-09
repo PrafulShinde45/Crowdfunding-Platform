@@ -1,9 +1,15 @@
 
 import Dashboard from '@/components/Dashboard'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 
 const DashboardPage = () => {
     return (
-        <Dashboard/>
+        <>
+            <Navbar />
+            <Dashboard/>
+            <Footer />
+        </>
     )
 }
 

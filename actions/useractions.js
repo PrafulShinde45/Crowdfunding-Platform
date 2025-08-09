@@ -32,41 +32,67 @@ export const initiate = async (amount, to_username, paymentform) => {
 
 
 export const fetchuser = async (username) => {
-    await connectDb()
-    let u = await User.findOne({ username: username })
-    let user = u.toObject({ flattenObjectIds: true })
-    return user
+    try {
+        await connectDb()
+        let u = await User.findOne({ username: username })
+        if (!u) {
+            throw new Error('User not found')
+        }
+        let user = u.toObject({ flattenObjectIds: true })
+        return user
+    } catch (error) {
+        console.error('Error fetching user:', error)
+        throw error
+    }
 }
 
 export const fetchpayments = async (username) => {
-    await connectDb()
-    // find all payments sorted by decreasing order of amount and flatten object ids
-    let p = await Payment.find({ to_user: username, done:true }).sort({ amount: -1 }).limit(10).lean()
-    return p
+    try {
+        await connectDb()
+        // find all payments sorted by decreasing order of amount and flatten object ids
+        let p = await Payment.find({ to_user: username, done:true }).sort({ amount: -1 }).limit(10).lean()
+        return p
+    } catch (error) {
+        console.error('Error fetching payments:', error)
+        return []
+    }
+}
+
+export const fetchallpayments = async (username) => {
+    try {
+        await connectDb()
+        // find all payments (including pending) sorted by creation date
+        let p = await Payment.find({ to_user: username }).sort({ createdAt: -1 }).lean()
+        return p
+    } catch (error) {
+        console.error('Error fetching all payments:', error)
+        return []
+    }
 }
 
 export const updateProfile = async (data, oldusername) => {
-    await connectDb()
-    let ndata = Object.fromEntries(data)
+    try {
+        await connectDb()
+        let ndata = Object.fromEntries(data)
 
-    // If the username is being updated, check if username is available
-    if (oldusername !== ndata.username) {
-        let u = await User.findOne({ username: ndata.username })
-        if (u) {
-            return { error: "Username already exists" }
-        }   
-        await User.updateOne({email: ndata.email}, ndata)
-        // Now update all the usernames in the Payments table 
-        await Payment.updateMany({to_user: oldusername}, {to_user: ndata.username})
+        // If the username is being updated, check if username is available
+        if (oldusername !== ndata.username) {
+            let u = await User.findOne({ username: ndata.username })
+            if (u) {
+                return { error: "Username already exists" }
+            }   
+            await User.updateOne({email: ndata.email}, ndata)
+            // Now update all the usernames in the Payments table 
+            await Payment.updateMany({to_user: oldusername}, {to_user: ndata.username})
+        } else {
+            await User.updateOne({email: ndata.email}, ndata)
+        }
         
+        return { success: true }
+    } catch (error) {
+        console.error('Update profile error:', error)
+        return { error: "Failed to update profile" }
     }
-    else{
-
-        
-        await User.updateOne({email: ndata.email}, ndata)
-    }
-
-
 }
 
 

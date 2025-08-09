@@ -1,13 +1,13 @@
 import React from 'react'
-import PaymentPage from '@/components/PaymentPage'
+import CreatorDashboard from '@/components/CreatorDashboard'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { notFound } from "next/navigation"
 import connectDb from '@/db/connectDb'
 import User from '@/models/User'
 
-const Username = async ({ params }) => {
-  // If the username is not present in the database, show a 404 page
+const CreatorDashboardPage = async ({ params }) => {
+  // Check if the creator exists in the database
   const checkUser = async () => {
     try {
       await connectDb()
@@ -15,27 +15,28 @@ const Username = async ({ params }) => {
       if (!u) {
         return notFound()
       }
+      return u
     } catch (error) {
       console.error('Database error:', error)
-      // If database connection fails, still show the page but with error handling
-      return
+      return notFound()
     }
   }
-  await checkUser()
+  
+  const creator = await checkUser()
 
   return (
     <>
       <Navbar />
-      <PaymentPage username={params.username} />
+      <CreatorDashboard username={params.username} creatorData={creator} />
       <Footer />
     </>
   )
 }
 
-export default Username
- 
+export default CreatorDashboardPage
+
 export async function generateMetadata({ params }) {
   return {
-    title: `Support ${params.username} - Get Me A Chai`,
+    title: `${params.username}'s Dashboard - FundForge`,
   }
 }

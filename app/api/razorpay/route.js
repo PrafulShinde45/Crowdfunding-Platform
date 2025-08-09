@@ -26,11 +26,47 @@ export const POST = async (req) => {
     if(xx){
         // Update the payment status
         const updatedPayment = await Payment.findOneAndUpdate({oid: body.razorpay_order_id}, {done: "true"}, {new: true})
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_URL}/${updatedPayment.to_user}?paymentdone=true`)  
+        return NextResponse.redirect(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/${updatedPayment.to_user}?paymentdone=true`)  
     }
 
     else{
         return NextResponse.json({success: false, message:"Payment Verification Failed"})
     }
+}
 
+export const GET = async (req) => {
+    // Handle GET requests (for callback URLs)
+    const { searchParams } = new URL(req.url)
+    const orderId = searchParams.get('razorpay_order_id')
+    const paymentId = searchParams.get('razorpay_payment_id')
+    const signature = searchParams.get('razorpay_signature')
+    
+    if (!orderId || !paymentId || !signature) {
+        return NextResponse.json({success: false, message:"Missing payment parameters"})
+    }
+
+    await connectDb()
+    
+    // Check if razorpayOrderId is present on the server
+    let p = await Payment.findOne({oid: orderId})
+    if(!p){
+        return NextResponse.json({success: false, message:"Order Id not found"})
+    }
+
+    // fetch the secret of the user who is getting the payment 
+    let user = await User.findOne({username: p.to_user})
+    const secret = user.razorpaysecret
+
+    // Verify the payment
+    let xx = validatePaymentVerification({"order_id": orderId, "payment_id": paymentId}, signature, secret)
+
+    if(xx){
+        // Update the payment status
+        const updatedPayment = await Payment.findOneAndUpdate({oid: orderId}, {done: "true"}, {new: true})
+        return NextResponse.redirect(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/${updatedPayment.to_user}?paymentdone=true`)  
+    }
+
+    else{
+        return NextResponse.json({success: false, message:"Payment Verification Failed"})
+    }
 }

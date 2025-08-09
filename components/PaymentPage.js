@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import { notFound } from "next/navigation"
 
 const PaymentPage = ({ username }) => {
-    // const { data: session } = useSession()
+    const { data: session } = useSession()
 
     const [paymentform, setPaymentform] = useState({name: "", message: "", amount: ""})
     const [currentUser, setcurrentUser] = useState({})
@@ -19,9 +19,27 @@ const PaymentPage = ({ username }) => {
     const searchParams = useSearchParams()
     const router = useRouter()
 
+    const handleChange = (e) => {
+        setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
+    }
+
+    const getData = React.useCallback(async () => {
+        try {
+            let u = await fetchuser(username)
+            setcurrentUser(u)
+            let dbpayments = await fetchpayments(username)
+            setPayments(dbpayments) 
+        } catch (error) {
+            console.error('Error fetching data:', error)
+            // Set default values if database fails
+            setcurrentUser({})
+            setPayments([])
+        }
+    }, [username])
+
     useEffect(() => {
         getData()
-    }, [])
+    }, [getData])
 
     useEffect(() => {
         if(searchParams.get("paymentdone") == "true"){
@@ -37,21 +55,8 @@ const PaymentPage = ({ username }) => {
             transition: Bounce,
             });
         }
-        router.push(`/${username}`)
      
-    }, [])
-    
-
-    const handleChange = (e) => {
-        setPaymentform({ ...paymentform, [e.target.name]: e.target.value })
-    }
-
-    const getData = async () => {
-        let u = await fetchuser(username)
-        setcurrentUser(u)
-        let dbpayments = await fetchpayments(username)
-        setPayments(dbpayments) 
-    }
+    }, [searchParams])
 
 
     const pay = async (amount) => {
@@ -62,11 +67,11 @@ const PaymentPage = ({ username }) => {
             "key": currentUser.razorpayid, // Enter the Key ID generated from the Dashboard
             "amount": amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
             "currency": "INR",
-            "name": "Get Me A Chai", //your business name
+            "name": "FundForge", //your business name
             "description": "Test Transaction",
             "image": "https://example.com/your_logo",
             "order_id": orderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-            "callback_url": `${process.env.NEXT_PUBLIC_URL}/api/razorpay`,
+            "callback_url": `${window.location.origin}/api/razorpay`,
             "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
                 "name": "Gaurav Kumar", //your customer's name
                 "email": "gaurav.kumar@example.com",
@@ -76,7 +81,7 @@ const PaymentPage = ({ username }) => {
                 "address": "Razorpay Corporate Office"
             },
             "theme": {
-                "color": "#3399cc"
+                "color": "#dc2626"
             }
         }
 
@@ -97,71 +102,256 @@ const PaymentPage = ({ username }) => {
                 pauseOnFocusLoss
                 draggable
                 pauseOnHover
-                theme="light" />
-            {/* Same as */}
-            <ToastContainer />
+                theme="dark" />
             <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
 
-
-            <div className='cover w-full bg-red-50 relative'>
-                <img className='object-cover w-full h-48 md:h-[350px] shadow-blue-700 shadow-sm' src={currentUser.coverpic} alt="" />
-                <div className='absolute -bottom-20 right-[33%] md:right-[46%] border-white overflow-hidden border-2 rounded-full size-36'>
-                    <img className='rounded-full object-cover size-36' width={128} height={128} src={currentUser.profilepic} alt="" />
-                </div>
-            </div>
-            <div className="info flex justify-center items-center my-24 mb-32 flex-col gap-2">
-                <div className='font-bold text-lg'>
-
-                    @{username}
-                </div>
-                <div className='text-slate-400'>
-                    Lets help {username} get a chai!
-
-                </div>
-                <div className='text-slate-400'>
-                  {payments.length} Payments .   ₹{payments.reduce((a, b) => a + b.amount, 0)} raised
-                </div>
-
-                <div className="payment flex gap-3 w-[80%] mt-11 flex-col md:flex-row">
-                    <div className="supporters w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
-                        {/* Show list of all the supporters as a leaderboard  */}
-                        <h2 className='text-2xl font-bold my-5'> Top 10 Supporters</h2>
-                        <ul className='mx-5 text-lg'>
-                            {payments.length == 0 && <li>No payments yet</li>}
-                            {payments.map((p, i) => {
-                                return <li key={i} className='my-4 flex gap-2 items-center'>
-                                    <img width={33} src="avatar.gif" alt="user avatar" />
-                                    <span>
-                                        {p.name} donated <span className='font-bold'>₹{p.amount}</span> with a message &quot;{p.message}&quot;
-                                    </span>
-                                </li>
-                            })}
-
-                        </ul>
-                    </div>
-
-                    <div className="makePayment w-full md:w-1/2 bg-slate-900 rounded-lg text-white px-2 md:p-10">
-                        <h2 className='text-2xl font-bold my-5'>Make a Payment</h2>
-                        <div className='flex gap-2 flex-col'>
-                            {/* input for name and message   */}
-                            <div>
-
-                                <input onChange={handleChange} value={paymentform.name} name='name' type="text" className='w-full p-3 rounded-lg bg-slate-800' placeholder='Enter Name' />
+            <div className='min-h-screen bg-black'>
+                {/* Professional Header Section */}
+                <div className='relative bg-gradient-to-r from-black via-gray-900 to-black border-b border-red-500/20'>
+                    {/* Background Pattern */}
+                    <div className='absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(239,68,68,0.1)_0%,transparent_50%)]'></div>
+                    
+                    {/* Header Content */}
+                    <div className='relative z-10 container mx-auto px-6 py-12'>
+                        <div className='flex flex-col md:flex-row items-center gap-8'>
+                            {/* Profile Avatar */}
+                            <div className='relative'>
+                                <div className='absolute -inset-2 bg-gradient-to-r from-red-600 to-red-800 rounded-full blur-lg opacity-30'></div>
+                                <div className='relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-2 border-red-500/30 bg-gray-800'>
+                                    {currentUser.profilepic ? (
+                                        <img 
+                                            className='w-full h-full object-cover' 
+                                            src={currentUser.profilepic} 
+                                            alt="Profile" 
+                                        />
+                                    ) : (
+                                        <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900'>
+                                            <div className='text-4xl font-bold text-red-500'>
+                                                {username?.charAt(0)?.toUpperCase() || 'U'}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <input onChange={handleChange} value={paymentform.message} name='message' type="text" className='w-full p-3 rounded-lg bg-slate-800' placeholder='Enter Message' />
 
-
-                            <input onChange={handleChange} value={paymentform.amount} name="amount" type="text" className='w-full p-3 rounded-lg bg-slate-800' placeholder='Enter Amount' />
-
-
-                            <button onClick={() => pay(Number.parseInt(paymentform.amount) * 100)} type="button" className="text-white bg-gradient-to-br from-purple-900 to-blue-900 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 disabled:bg-slate-600 disabled:from-purple-100" disabled={paymentform.name?.length < 3 || paymentform.message?.length < 4 || paymentform.amount?.length<1}>Pay</button>
-
+                            {/* Profile Info */}
+                            <div className='flex-1 text-center md:text-left'>
+                                <h1 className='text-4xl md:text-5xl font-bold text-white mb-4'>
+                                    @{username}
+                                </h1>
+                                <p className='text-xl text-gray-300 mb-6 max-w-2xl'>
+                                    Support {username}'s creative journey and help forge amazing projects into reality.
+                                </p>
+                                
+                                {/* Stats */}
+                                <div className='flex flex-col sm:flex-row gap-6 justify-center md:justify-start'>
+                                    <div className='bg-gray-900/50 backdrop-blur-sm rounded-lg px-6 py-4 border border-red-500/20'>
+                                        <div className='text-2xl font-bold text-red-400'>
+                                            {payments.length}
+                                        </div>
+                                        <div className='text-sm text-gray-400 uppercase tracking-wide'>
+                                            Supporters
+                                        </div>
+                                    </div>
+                                    <div className='bg-gray-900/50 backdrop-blur-sm rounded-lg px-6 py-4 border border-red-500/20'>
+                                        <div className='text-2xl font-bold text-red-400'>
+                                            ₹{payments.reduce((a, b) => a + b.amount, 0)}
+                                        </div>
+                                        <div className='text-sm text-gray-400 uppercase tracking-wide'>
+                                            Total Raised
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Share URL Section - Only show when user is logged in */}
+                                {session && (
+                                    <div className='mt-6 max-w-md bg-gray-900/50 backdrop-blur-sm rounded-lg p-4 border border-red-500/20'>
+                                        <h3 className='text-sm font-semibold text-white mb-3 flex items-center gap-2'>
+                                            <svg className="w-4 h-4 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                                            </svg>
+                                            Share this URL
+                                        </h3>
+                                        <div className='flex gap-2'>
+                                            <input 
+                                                type="text" 
+                                                value={typeof window !== 'undefined' ? window.location.href : `https://fundforge.com/${username}`}
+                                                readOnly
+                                                className='flex-1 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-xs focus:ring-2 focus:ring-red-500 focus:border-red-500'
+                                            />
+                                            <button 
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(window.location.href);
+                                                    toast.success('URL copied to clipboard!', {
+                                                        position: "top-right",
+                                                        autoClose: 2000,
+                                                        hideProgressBar: false,
+                                                        closeOnClick: true,
+                                                        pauseOnHover: true,
+                                                        draggable: true,
+                                                        progress: undefined,
+                                                        theme: "dark",
+                                                        transition: Bounce,
+                                                    });
+                                                }}
+                                                className='px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center gap-1'
+                                            >
+                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+                                                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/>
+                                                </svg>
+                                                Copy
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        {/* Or choose from these amounts  */}
-                        <div className='flex flex-col md:flex-row gap-2 mt-5'>
-                            <button className='bg-slate-800 p-3 rounded-lg' onClick={() => pay(1000)}>Pay ₹10</button>
-                            <button className='bg-slate-800 p-3 rounded-lg' onClick={() => pay(2000)}>Pay ₹20</button>
-                            <button className='bg-slate-800 p-3 rounded-lg' onClick={() => pay(3000)}>Pay ₹30</button>
+                    </div>
+                </div>
+
+                {/* Main Content Section */}
+                <div className='container mx-auto px-6 py-12'>
+                    <div className="grid lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+                        {/* Supporters Section */}
+                        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-red-500/20 overflow-hidden flex flex-col">
+                            <div className="bg-gradient-to-r from-red-900/20 to-transparent p-6 border-b border-red-500/20">
+                                <h2 className='text-2xl font-bold text-white flex items-center gap-3'>
+                                    <div className='w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center'>
+                                        <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    Recent Supporters
+                                </h2>
+                            </div>
+                            
+                            <div className='p-6 flex-1 overflow-y-auto custom-scrollbar'>
+                                {payments.length === 0 ? (
+                                    <div className='text-center py-8'>
+                                        <div className='w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3'>
+                                            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </div>
+                                        <p className='text-gray-400'>Be the first supporter!</p>
+                                    </div>
+                                ) : (
+                                    <div className='space-y-4'>
+                                        {payments.slice(0, 10).map((p, i) => (
+                                            <div key={i} className='group bg-gray-800/30 hover:bg-gray-800/50 p-4 rounded-xl border border-gray-700/30 hover:border-red-500/30 transition-all duration-200'>
+                                                <div className='flex gap-4 items-center'>
+                                                    <div className='w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center text-white font-bold text-lg'>
+                                                        {p.name?.charAt(0)?.toUpperCase() || 'A'}
+                                                    </div>
+                                                    <div className='flex-1'>
+                                                        <div className='flex items-center gap-2 mb-1'>
+                                                            <span className='font-semibold text-white'>{p.name}</span>
+                                                            <span className='text-gray-400 text-sm'>donated</span>
+                                                            <span className='font-bold text-red-400'>₹{p.amount}</span>
+                                                        </div>
+                                                        {p.message && (
+                                                            <p className='text-sm text-gray-300 italic'>"{p.message}"</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Payment Form Section */}
+                        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-red-500/20 overflow-hidden flex flex-col">
+                            <div className="bg-gradient-to-r from-red-900/20 to-transparent p-6 border-b border-red-500/20">
+                                <h2 className='text-2xl font-bold text-white flex items-center gap-3'>
+                                    <div className='w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center'>
+                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                        </svg>
+                                    </div>
+                                    Support This Creator
+                                </h2>
+                            </div>
+                            
+                            <div className='p-6 flex-1 flex flex-col'>
+                                <form className='space-y-4 flex-1'>
+                                    <div>
+                                        <label className='block text-sm font-semibold text-gray-300 mb-2'>Your Name</label>
+                                        <input 
+                                            onChange={handleChange} 
+                                            value={paymentform.name} 
+                                            name='name' 
+                                            type="text" 
+                                            className='w-full p-3 rounded-xl bg-gray-800/50 border border-gray-600/50 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400 transition-all duration-200' 
+                                            placeholder='Enter your name' 
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className='block text-sm font-semibold text-gray-300 mb-2'>Message (Optional)</label>
+                                        <textarea 
+                                            onChange={handleChange} 
+                                            value={paymentform.message} 
+                                            name='message' 
+                                            rows={2}
+                                            className='w-full p-3 rounded-xl bg-gray-800/50 border border-gray-600/50 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400 transition-all duration-200 resize-none' 
+                                            placeholder='Leave a message of support...' 
+                                        />
+                                    </div>
+                                    
+                                    <div>
+                                        <label className='block text-sm font-semibold text-gray-300 mb-2'>Amount (₹)</label>
+                                        <input 
+                                            onChange={handleChange} 
+                                            value={paymentform.amount} 
+                                            name="amount" 
+                                            type="number" 
+                                            min="1"
+                                            className='w-full p-3 rounded-xl bg-gray-800/50 border border-gray-600/50 text-white focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder-gray-400 transition-all duration-200' 
+                                            placeholder='Enter amount' 
+                                        />
+                                    </div>
+
+                                    <button 
+                                        onClick={() => pay(Number.parseInt(paymentform.amount) * 100)} 
+                                        type="button" 
+                                        className="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl shadow-xl hover:shadow-red-500/25 transform hover:scale-[1.02] transition-all duration-200 disabled:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
+                                        disabled={paymentform.name?.length < 3 || paymentform.message?.length < 4 || paymentform.amount?.length < 1}
+                                    >
+                                        Support with ₹{paymentform.amount || '0'}
+                                    </button>
+                                </form>
+
+                                {/* Quick Payment Options */}
+                                <div className='mt-6 pt-4 border-t border-gray-700/30'>
+                                    <p className='text-gray-300 font-medium mb-3'>Quick Support Options</p>
+                                    <div className='grid grid-cols-3 gap-3'>
+                                        <button 
+                                            className='bg-gray-800/50 hover:bg-gray-700/50 p-3 rounded-xl border border-gray-600/30 hover:border-red-500/50 transition-all duration-200 text-center group' 
+                                            onClick={() => pay(1000)}
+                                        >
+                                            <div className='font-bold text-white group-hover:text-red-400'>₹10</div>
+                                            <div className='text-xs text-gray-400'>Support</div>
+                                        </button>
+                                        <button 
+                                            className='bg-gray-800/50 hover:bg-gray-700/50 p-3 rounded-xl border border-gray-600/30 hover:border-red-500/50 transition-all duration-200 text-center group' 
+                                            onClick={() => pay(2000)}
+                                        >
+                                            <div className='font-bold text-white group-hover:text-red-400'>₹20</div>
+                                            <div className='text-xs text-gray-400'>Boost</div>
+                                        </button>
+                                        <button 
+                                            className='bg-gray-800/50 hover:bg-gray-700/50 p-3 rounded-xl border border-gray-600/30 hover:border-red-500/50 transition-all duration-200 text-center group' 
+                                            onClick={() => pay(3000)}
+                                        >
+                                            <div className='font-bold text-white group-hover:text-red-400'>₹30</div>
+                                            <div className='text-xs text-gray-400'>Power</div>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

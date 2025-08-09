@@ -5,3 +5,56 @@
 .invertImg{
     filter: invert(0.23)
 }
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(31, 41, 55, 0.5);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.5);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(239, 68, 68, 0.7);
+}
+
+/* Jumping Shaky Animation for Logo with Left-Right Movement */
+@keyframes jumpShake {
+    0%, 100% {
+        transform: translateX(0) translateY(0) rotate(0deg) scale(1);
+    }
+    10% {
+        transform: translateX(-3px) translateY(-8px) rotate(1deg) scale(1.05);
+    }
+    20% {
+        transform: translateX(6px) translateY(-12px) rotate(-1deg) scale(1.1);
+    }
+    30% {
+        transform: translateX(-4px) translateY(-8px) rotate(1deg) scale(1.05);
+    }
+    40% {
+        transform: translateX(2px) translateY(-4px) rotate(-0.5deg) scale(1.02);
+    }
+    50% {
+        transform: translateX(-5px) translateY(-10px) rotate(0.5deg) scale(1.08);
+    }
+    60% {
+        transform: translateX(3px) translateY(-6px) rotate(-0.5deg) scale(1.03);
+    }
+    70% {
+        transform: translateX(-2px) translateY(-8px) rotate(1deg) scale(1.05);
+    }
+    80% {
+        transform: translateX(4px) translateY(-4px) rotate(-1deg) scale(1.02);
+    }
+    90% {
+        transform: translateX(-1px) translateY(-2px) rotate(0.5deg) scale(1.01);
+    }
+}
