@@ -1,9 +1,3 @@
-import bundleAnalyzer from '@next/bundle-analyzer';
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Image optimization
@@ -39,8 +33,8 @@ const nextConfig = {
   
   // Experimental features for better performance
   experimental: {
-    optimizeCss: true,
-    optimizeServerReact: true,
+    // Removed experimental features that may cause build issues
+    serverComponentsExternalPackages: ['mongoose'],
   },
   
   // Headers for caching
@@ -72,4 +66,4 @@ const nextConfig = {
   }
 };
 
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;
