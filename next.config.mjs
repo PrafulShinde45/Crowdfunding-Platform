@@ -23,6 +23,20 @@ const nextConfig = {
   // Production optimizations
   swcMinify: true,
   
+  // ESLint configuration for deployment
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: false,
+    dirs: ['app', 'components', 'actions', 'models', 'db']
+  },
+  
+  // TypeScript configuration
+  typescript: {
+    // Ignore type errors during build (if any)
+    ignoreBuildErrors: false,
+  },
+  
   // Experimental features for better performance
   experimental: {
     optimizeCss: true,

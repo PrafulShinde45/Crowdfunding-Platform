@@ -32,7 +32,7 @@ const CreatorDashboard = ({ username, creatorData }) => {
         <div className='container mx-auto py-5 px-6 min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900'>
             <div className="flex items-center justify-between mb-8">
                 <h1 className='text-3xl font-bold text-white'>
-                    {username}'s Dashboard
+                                                {username}&apos;s Dashboard
                 </h1>
                 <button 
                     onClick={() => router.push(`/${username}`)}

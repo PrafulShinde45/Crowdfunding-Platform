@@ -140,7 +140,7 @@ const PaymentPage = ({ username }) => {
                                     @{username}
                                 </h1>
                                 <p className='text-xl text-gray-300 mb-6 max-w-2xl'>
-                                    Support {username}'s creative journey and help forge amazing projects into reality.
+                                    Support {username}&apos;s creative journey and help forge amazing projects into reality.
                                 </p>
                                 
                                 {/* Stats */}
@@ -251,7 +251,7 @@ const PaymentPage = ({ username }) => {
                                                             <span className='font-bold text-red-400'>₹{p.amount}</span>
                                                         </div>
                                                         {p.message && (
-                                                            <p className='text-sm text-gray-300 italic'>"{p.message}"</p>
+                                                            <p className='text-sm text-gray-300 italic'>&quot;{p.message}&quot;</p>
                                                         )}
                                                     </div>
                                                 </div>
