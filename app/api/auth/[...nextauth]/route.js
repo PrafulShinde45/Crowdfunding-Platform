@@ -7,9 +7,12 @@ import Payment from '@/models/Payment';
  
 
 const authOptions = {
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET || 'fallback-secret-for-production-debug',
     debug: process.env.NODE_ENV === 'development',
-    session: { strategy: 'jwt' },
+    session: { 
+      strategy: 'jwt',
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
     pages: {
       signIn: '/login',
       error: '/login',
@@ -24,8 +27,14 @@ const authOptions = {
         },
         async authorize(credentials) {
           try {
+            console.log('🔍 [VERCEL BUILD] Authentication attempt started');
+            console.log('🔍 [VERCEL BUILD] Environment check:', {
+              MONGO_URI: process.env.MONGO_URI ? 'Set' : 'NOT SET',
+              NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'Set' : 'NOT SET'
+            });
+            
             if (!credentials?.email || !credentials?.password) {
-              console.log('Missing email or password in credentials')
+              console.log('❌ [VERCEL BUILD] Missing email or password in credentials')
               return null
             }
 
@@ -33,6 +42,13 @@ const authOptions = {
             const providedPassword = String(credentials.password)
 
             console.log('Auth attempt for email:', normalizedEmail)
+            
+            // Check environment variables
+            if (!process.env.MONGO_URI) {
+              console.error('MONGO_URI not found in environment variables')
+              throw new Error('Database configuration error')
+            }
+            
             await connectDb()
             
             const user = await User.findOne({ email: normalizedEmail })
@@ -53,7 +69,8 @@ const authOptions = {
             console.log('Authentication failed for:', normalizedEmail)
             return null
           } catch (error) {
-            console.error('Auth error:', error)
+            console.error('Auth error:', error.message)
+            // Don't expose detailed error to client
             return null
           }
         }
@@ -69,18 +86,26 @@ const authOptions = {
       
       async session({ session, user, token }) {
         try {
+          // Check if we have required environment variables
+          if (!process.env.MONGO_URI) {
+            console.error('MONGO_URI missing in session callback')
+            session.user.name = session.user.email?.split("@")[0] || 'User'
+            return session
+          }
+          
           await connectDb()
           const dbUser = await User.findOne({email: session.user.email})
           if (dbUser) {
             session.user.name = dbUser.username
             session.user.id = dbUser._id.toString()
           } else {
-            session.user.name = session.user.email.split("@")[0]
+            session.user.name = session.user.email?.split("@")[0] || 'User'
           }
           return session
         } catch (error) {
-          console.error('Session error:', error)
-          session.user.name = session.user.email.split("@")[0]
+          console.error('Session callback error:', error.message)
+          // Provide fallback name to prevent session failure
+          session.user.name = session.user.email?.split("@")[0] || 'User'
           return session
         }
       },

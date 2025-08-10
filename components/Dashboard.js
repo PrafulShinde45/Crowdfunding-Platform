@@ -11,6 +11,18 @@ const Dashboard = () => {
     const { data: session, update } = useSession()
     const router = useRouter()
     const [form, setform] = useState({})
+    const [dbStatus, setDbStatus] = useState({ status: 'checking', connected: false })
+
+    const checkDbStatus = async () => {
+        try {
+            const response = await fetch('/api/health/db')
+            const data = await response.json()
+            setDbStatus(data)
+        } catch (error) {
+            console.error('Failed to check DB status:', error)
+            setDbStatus({ status: 'error', connected: false, error: 'Failed to check status' })
+        }
+    }
 
     const getData = React.useCallback(async () => {
         if (!session?.user?.name) {
