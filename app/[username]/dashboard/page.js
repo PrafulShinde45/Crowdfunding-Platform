@@ -1,10 +1,13 @@
 import React from 'react'
 import CreatorDashboard from '@/components/CreatorDashboard'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import { Suspense, lazy } from 'react'
 import { notFound } from "next/navigation"
 import connectDb from '@/db/connectDb'
 import User from '@/models/User'
+
+// Lazy load components for better performance
+const Navbar = lazy(() => import('@/components/Navbar'))
+const Footer = lazy(() => import('@/components/Footer'))
 
 const CreatorDashboardPage = async ({ params }) => {
   // Check if the creator exists in the database
@@ -26,9 +29,13 @@ const CreatorDashboardPage = async ({ params }) => {
 
   return (
     <>
-      <Navbar />
+      <Suspense fallback={<div className="h-16 bg-gray-900 animate-pulse"></div>}>
+        <Navbar />
+      </Suspense>
       <CreatorDashboard username={params.username} creatorData={creator} />
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-gray-900 animate-pulse"></div>}>
+        <Footer />
+      </Suspense>
     </>
   )
 }

@@ -1,12 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Suspense, lazy } from "react";
+
+// Lazy load components for better performance
+const Navbar = lazy(() => import("@/components/Navbar"));
+const Footer = lazy(() => import("@/components/Footer"));
 
 export default function Home() {
   return (
     <>
-      <Navbar />
+      <Suspense fallback={<div className="h-16 bg-gray-900 animate-pulse"></div>}>
+        <Navbar />
+      </Suspense>
       
       {/* Hero Section */}
       <div className="relative min-h-screen bg-black overflow-hidden">
@@ -144,7 +149,9 @@ export default function Home() {
 
 
 
-      <Footer />
+      <Suspense fallback={<div className="h-32 bg-gray-900 animate-pulse"></div>}>
+        <Footer />
+      </Suspense>
     </>
   );
 }

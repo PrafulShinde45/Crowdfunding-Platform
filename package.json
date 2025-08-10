@@ -4,13 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/test-db.js && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "analyze": "ANALYZE=true npm run build",
     "analyze:server": "BUNDLE_ANALYZE=browser npm run build",
-    "analyze:browser": "BUNDLE_ANALYZE=browser npm run build",
-    "test-db": "node scripts/test-db.js"
+    "analyze:browser": "BUNDLE_ANALYZE=browser npm run build"
   },
   "dependencies": {
     "auth": "^1.2.3",

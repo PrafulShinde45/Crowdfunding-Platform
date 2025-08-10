@@ -128,8 +128,8 @@ const Signup = () => {
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
-            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-red-600">
-              <img className="h-8 w-8" src="/tea.gif" alt="Logo" />
+            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-gray-900 to-red-800/50 border border-red-500/40">
+              <img className="h-8 w-8" src="/crowdfunding.gif" alt="FundForge Logo" />
             </div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
               Create your account
