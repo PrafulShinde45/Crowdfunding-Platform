@@ -77,37 +77,20 @@ const authOptions = {
       })
     ],
     callbacks: {
-      async signIn({ user, account, profile, email, credentials }) {
-         if (account?.provider === "credentials") {
-           return true
-         }
-         return true
+      async jwt({ token, user }) {
+        if (user) {
+          token.id = user.id
+          token.username = user.name
+        }
+        return token
       },
       
-      async session({ session, user, token }) {
-        try {
-          // Check if we have required environment variables
-          if (!process.env.MONGO_URI) {
-            console.error('MONGO_URI missing in session callback')
-            session.user.name = session.user.email?.split("@")[0] || 'User'
-            return session
-          }
-          
-          await connectDb()
-          const dbUser = await User.findOne({email: session.user.email})
-          if (dbUser) {
-            session.user.name = dbUser.username
-            session.user.id = dbUser._id.toString()
-          } else {
-            session.user.name = session.user.email?.split("@")[0] || 'User'
-          }
-          return session
-        } catch (error) {
-          console.error('Session callback error:', error.message)
-          // Provide fallback name to prevent session failure
-          session.user.name = session.user.email?.split("@")[0] || 'User'
-          return session
+      async session({ session, token }) {
+        if (token) {
+          session.user.id = token.id
+          session.user.name = token.username
         }
+        return session
       },
     } 
   }
